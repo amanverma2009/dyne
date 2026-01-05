@@ -100,7 +100,7 @@ export default function Home(params) {
           <div className="flex gap-2 mt-6 justify-center">
             <div className="w-8 h-1 bg-gray-200 rounded-full"></div>
             <div className="w-8 h-1 bg-gray-200 rounded-full"></div>
-            <div className="w-8 h-1 bg-orange-500 rounded-full"></div>
+            <div className="w-8 h-1 bg-primary rounded-full"></div>
           </div>
         </div>
       </div>
