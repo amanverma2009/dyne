@@ -58,7 +58,6 @@ export default function HomePage() {
   const [cards, setCards] = useState(SAMPLE_RESTAURANTS);
   const refs = useRef([]);
 
-  // ensure refs length matches rendered top 3
   const topCards = useMemo(() => cards.slice(0, 3), [cards]);
 
   useEffect(() => {
@@ -81,9 +80,7 @@ export default function HomePage() {
         o.stop();
         ctx.close();
       }, 150);
-    } catch (err) {
-      // ignore
-    }
+    } catch (err) {}
   }
 
   function doHaptic() {
@@ -93,13 +90,11 @@ export default function HomePage() {
   }
 
   function handleAction(type, id) {
-    // play feedback then remove top card
     playSound();
     doHaptic();
     setTimeout(() => {
       setCards((c) => {
         if (c.length === 0) return c;
-        // remove the card with id (should be top)
         return c.filter((r) => r.id !== id);
       });
     }, 300);
@@ -123,8 +118,8 @@ export default function HomePage() {
   }, [cards]);
 
   return (
-    <div className="h-screen bg-gray-50 flex flex-col">
-  <div className="bg-white px-6 py-4 shadow-sm relative z-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="bg-white px-6 py-4 shadow-sm relative z-50">
         <div className="flex items-center justify-between">
           <Image width={50} height={50} alt="Logo" src="/temp-logo.png" />
           <h1 className="text-lg font-bold text-gray-900">Discover</h1>
@@ -136,19 +131,18 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="flex-1 relative flex items-center justify-center">
-        {/* Deck - render bottom-to-top */}
-        {topCards
-          .slice()
-          .reverse()
-          .map((r, idx) => {
-            const displayIndex = topCards.length - 1 - idx; // 0 = top
-            const z = 10 + displayIndex;
+  <div className="flex-1 relative flex items-center justify-center">
+        {(() => {
+          const elems = [];
+          for (let i = topCards.length - 1; i >= 0; i--) {
+            const r = topCards[i];
+            const displayIndex = i;
+            const z = 10 + (topCards.length - i);
             const scale =
               displayIndex === 0 ? 1 : displayIndex === 1 ? 0.97 : 0.94;
             const translateY =
               displayIndex === 0 ? 0 : displayIndex === 1 ? 8 : 16;
-            return (
+            elems.push(
               <div
                 key={r.id}
                 className="absolute"
@@ -160,24 +154,26 @@ export default function HomePage() {
               >
                 <Card
                   ref={(el) => {
-                    // only top card needs ref for keyboard
                     if (displayIndex === 0) refs.current[0] = el;
                   }}
                   draggable={displayIndex === 0}
+                  restaurant={r}
                   onLike={() => handleAction("like", r.id)}
                   onSave={() => handleAction("save", r.id)}
                   onDislike={() => handleAction("dislike", r.id)}
                 />
               </div>
             );
-          })}
+          }
+          return elems;
+        })()}
 
         {cards.length === 0 && (
           <div className="text-center text-gray-500">No more restaurants</div>
         )}
       </div>
 
-      <div className="p-6 pt-4 border-t border-gray-100">
+      <div className=" p-6 pt-4 border-t border-gray-100">
         <div className="flex items-center justify-center gap-6">
           <button
             onClick={() => refs.current[0]?.trigger("dislike")}

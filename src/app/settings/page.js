@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 export default function Page() {
   const router = useRouter();
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+  <div className="min-h-screen bg-gray-50">
       <div className="bg-white px-6 py-4 shadow-sm">
         <div className="flex items-center gap-4">
           <button className="w-10 h-10 flex items-center justify-center">
