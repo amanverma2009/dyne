@@ -2,10 +2,35 @@
 import LikedRestaurants from "@/components/LikedRestaurants";
 import SavedRestaurants from "@/components/SavedRestaurants";
 import { Bookmark, Compass, Heart, Settings } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { invalidateCollectionCache } from "@/lib/collectionsApi";
 
 export default function Page() {
   const [isLiked, setLiked] = useState(false);
+
+  // Dev/QA helper: enable mock collections without a backend.
+  // - /saved?mock=1
+  // - or set NEXT_PUBLIC_USE_MOCK_COLLECTIONS=1
+  useEffect(() => {
+    const useMockEnv = process.env.NEXT_PUBLIC_USE_MOCK_COLLECTIONS === "1";
+    const useMockQuery =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("mock") === "1";
+
+    if (useMockEnv || useMockQuery) {
+      try {
+        localStorage.setItem(
+          "dyne:mockCollections",
+          JSON.stringify({ saved: ["1", "2"], liked: ["3", "1", "4"] })
+        );
+        // Ensure cached API responses don't mask the newly enabled mock.
+        invalidateCollectionCache();
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="bg-white px-6 py-4 shadow-sm sticky top-0 z-10">

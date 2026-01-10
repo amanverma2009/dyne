@@ -69,8 +69,8 @@ export default function Home() {
           </div>
         </div>
         <div className="pt-6">
-          <Link href="/onboarding/step-3">
-            <button
+          <Link href="/home">
+            <button 
               disabled={!selectedDiet}
               className={`w-full py-4 rounded-full font-semibold text-base shadow-lg transition-all
             ${
@@ -80,7 +80,7 @@ export default function Home() {
             }`}
               onClick={() => console.log(selectedDiet)}
             >
-              Continue
+              Start Discovering
             </button>
           </Link>
 

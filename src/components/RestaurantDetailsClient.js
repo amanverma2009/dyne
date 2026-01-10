@@ -5,22 +5,20 @@ import Image from "next/image";
 import { getRestaurantById, SAMPLE_RESTAURANTS } from "@/lib/restaurants";
 
 export default function RestaurantDetailsClient({ initialId }) {
-  const [restaurant, setRestaurant] = useState(null);
+  // derive initial restaurant synchronously on the client
+  let resolvedId = initialId;
+  if (!resolvedId && typeof window !== "undefined") {
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    // expecting /restaurant/{id}
+    const idx = parts.indexOf("restaurant");
+    if (idx >= 0 && parts.length > idx + 1) resolvedId = parts[idx + 1];
+  }
 
-  useEffect(() => {
-    let id = initialId;
-    if (!id && typeof window !== "undefined") {
-      const parts = window.location.pathname.split("/").filter(Boolean);
-      // expecting /restaurant/{id}
-      const idx = parts.indexOf("restaurant");
-      if (idx >= 0 && parts.length > idx + 1) id = parts[idx + 1];
-    }
+  const initialRestaurant =
+    (resolvedId && (getRestaurantById(resolvedId) || SAMPLE_RESTAURANTS.find((x) => String(x.id) === String(resolvedId)))) ||
+    null;
 
-    if (!id) return;
-    // try to find locally first
-    const r = getRestaurantById(id) || SAMPLE_RESTAURANTS.find((x) => String(x.id) === String(id));
-    setRestaurant(r);
-  }, [initialId]);
+  const [restaurant, setRestaurant] = useState(initialRestaurant);
 
   if (!restaurant)
     return (

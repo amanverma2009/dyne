@@ -1,12 +1,12 @@
 import Image from "next/image";
+import Link from "next/link";
 import { getRestaurantById } from "@/lib/restaurants";
 import RestaurantDetailsClient from "@/components/RestaurantDetailsClient";
+import { CircleDollarSign, MapPin, SquareArrowOutUpLeft, Star } from "lucide-react";
 
 export default async function RestaurantPage({ params }) {
-  // params may be a promise in this Next.js version - await to make sure it's resolved
   const resolvedParams = params && typeof params.then === "function" ? await params : params;
   const { id } = resolvedParams || {};
-  // If no id provided, show debug info instead of redirecting so we can inspect params
   if (id == null) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
@@ -17,14 +17,15 @@ export default async function RestaurantPage({ params }) {
       </div>
     );
   }
-  // debug: log params on the server to help diagnose lookup issues
+  // debug: log resolved params on the server to help diagnose lookup issues
   try {
-    console.log("[restaurant page] params:", params);
-  } catch (e) {}
+    console.log("[restaurant page] resolvedParams:", resolvedParams);
+  } catch (e) {
+    console.debug("logging resolvedParams failed", e);
+  }
   const restaurant = getRestaurantById(id);
 
   if (!restaurant) {
-    // fallback to client rendering which will extract the id from the URL if params were missing
     return <RestaurantDetailsClient initialId={id} />;
   }
 
@@ -37,13 +38,11 @@ export default async function RestaurantPage({ params }) {
           src={restaurant.image}
           width={800}
           height={450}
+          loading="eager"
         />
-        <a href="/home" className="absolute top-4 left-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+        <Link href="/saved" className="absolute top-4 left-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg" aria-label="Back to home">
           <svg className="w-5 h-5 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
-        </a>
-        <button className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-          <svg className="w-5 h-5 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14"/></svg>
-        </button>
+        </Link>
       </div>
       <div className="bg-white rounded-t-3xl -mt-6 relative z-10 px-6 pt-6">
         <div className="flex items-start justify-between mb-4">
@@ -58,24 +57,22 @@ export default async function RestaurantPage({ params }) {
             </div>
           </div>
           <div className="flex flex-col items-end gap-1">
-            <div className="flex items-center gap-1 bg-orange-50 px-3 py-1.5 rounded-full">
+            <div className="flex items-center gap-1.5 bg-orange-50 px-3 py-1.5 rounded-full">
+              <Star className="w-4 text-orange-500" />
               <span className="text-base font-bold text-gray-900">{restaurant.rating}</span>
             </div>
             <span className="text-xs text-gray-500">{restaurant.reviews} reviews</span>
           </div>
         </div>
-        <div className="flex items-center gap-4 pb-6 border-b border-gray-100">
+        <div className="flex items-center gap-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
+              <CircleDollarSign className="w-4 text-gray-600" />
             <span className="text-sm font-medium text-gray-700">{restaurant.price}</span>
           </div>
           <div className="flex items-center gap-2">
+            <MapPin className="w-4 text-primary" />
             <span className="text-sm text-gray-700">{restaurant.distance}</span>
           </div>
-        </div>
-        <div className="flex gap-2 py-4 border-b border-gray-100">
-          <button className="flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all bg-orange-500 text-white">About</button>
-          <button className="flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600">Menu</button>
-          <button className="flex-1 py-2 px-4 rounded-full text-sm font-medium transition-all bg-gray-100 text-gray-600">Reviews</button>
         </div>
         <div className="py-6 space-y-6">
           <div>
@@ -89,20 +86,8 @@ export default async function RestaurantPage({ params }) {
                 <div className="text-sm text-gray-900">{restaurant.address}</div>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div>
-                <div className="text-xs text-gray-500 mb-0.5">Phone</div>
-                <div className="text-sm text-gray-900">{restaurant.phone}</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div>
-                <div className="text-xs text-gray-500 mb-0.5">Hours</div>
-                <div className="text-sm text-gray-900">{restaurant.hours}</div>
-              </div>
-            </div>
           </div>
-          <button className="w-full bg-orange-500 text-white py-3.5 rounded-full font-semibold flex items-center justify-center gap-2">Get Directions</button>
+          <button type="button" className="w-full bg-orange-500 text-white py-3.5 rounded-full font-semibold flex items-center justify-center gap-2 cursor-pointer"><SquareArrowOutUpLeft className="w-4.5" strokeWidth={3} />Get Directions</button>
         </div>
       </div>
     </div>

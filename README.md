@@ -1,4 +1,4 @@
-# <img src="./public/temp-logo.png" alt="Description of Image" width="30" height="30"> Dyne – Frontend
+# <img src="./public/logo.png" alt="Description of Image" width="30" height="30"> Dyne – Frontend
 
 A swipe-based restaurant discovery web app that helps you decide **where to eat nearby** without overthinking.
 Swipe right to like, left to skip, and save places for later.

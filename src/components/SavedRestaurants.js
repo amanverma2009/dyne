@@ -1,39 +1,72 @@
 import { CircleDollarSign, MapPin, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-
-const SAVED_RESTAURANTS = [
-  {
-    id: 1,
-    name: "Bella Italia Trattoria",
-    image: "/restaurant-image.jpg",
-    cuisine: ["Italian", "Pasta"],
-    rating: 4.8,
-    distance: "0.8 km",
-    price: "$$",
-  },
-  {
-    id: 2,
-    name: "Sushi Sakura",
-    image: "/restaurant-image.jpg",
-    cuisine: ["Japanese", "Sushi"],
-    rating: 4.7,
-    distance: "1.1 km",
-    price: "$$$",
-  },
-];
+import { useEffect, useMemo, useState } from "react";
+import { fetchSavedIds } from "@/lib/collectionsApi";
+import { getRestaurantById } from "@/lib/restaurants";
 
 export default function SavedRestaurants() {
+  const [ids, setIds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const fetched = await fetchSavedIds({ signal: controller.signal });
+        setIds(fetched);
+      } catch (e) {
+        setError(e);
+        setIds([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => controller.abort();
+  }, []);
+
+  const savedRestaurants = useMemo(() => {
+    const list = [];
+    const missing = [];
+
+    for (const id of ids || []) {
+      const r = getRestaurantById(id);
+      if (r) list.push(r);
+      else missing.push(id);
+    }
+
+    if (process.env.NODE_ENV !== "production" && missing.length) {
+      console.warn(
+        "[SavedRestaurants] Backend returned unknown restaurant ids:",
+        missing
+      );
+    }
+
+    return list;
+  }, [ids]);
+
   return (
     <div>
       <div className="px-6 py-6">
         <div className="flex flex-col gap-2">
-          {SAVED_RESTAURANTS.map((restaurant) => (
-                <Link
-                  key={restaurant.id}
-                  href={`/restaurant/${encodeURIComponent(String(restaurant.id))}`}
-                >
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden active:scale-98 transition-transform">
+          {loading ? (
+            <div className="text-sm text-gray-500">Loading saved restaurants…</div>
+          ) : error ? (
+            <div className="text-sm text-gray-500">
+              Couldn’t load saved restaurants yet. (Backend not connected)
+            </div>
+          ) : savedRestaurants.length === 0 ? (
+            <div className="text-sm text-gray-500">No saved restaurants.</div>
+          ) : (
+            savedRestaurants.map((restaurant) => (
+              <Link
+                key={String(restaurant.id)}
+                href={`/restaurant/${encodeURIComponent(String(restaurant.id))}`}
+              >
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden active:scale-98 transition-transform">
                 <div className="flex gap-4 p-4">
                   <Image
                     alt={restaurant.name}
@@ -41,6 +74,7 @@ export default function SavedRestaurants() {
                     src={restaurant.image}
                     width={80}
                     height={80}
+                    loading="eager"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-1">
@@ -79,8 +113,9 @@ export default function SavedRestaurants() {
                   </button>
                 </div>
               </div>
-            </Link>
-          ))}
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>

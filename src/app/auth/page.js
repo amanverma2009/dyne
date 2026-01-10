@@ -16,7 +16,7 @@ export default function Home() {
             height={96}
             alt="Logo"
             className="mx-auto mb-4"
-            src="/temp-logo.png"
+            src="/logo.png"
             loading="eager"
           />
           <p className="text-gray-600 text-sm">

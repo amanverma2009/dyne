@@ -80,7 +80,9 @@ function CardInner(
       if (u) window.removeEventListener("pointerup", u);
       handlersRef.current.move = null;
       handlersRef.current.up = null;
-    } catch (e) {}
+    } catch (e) {
+      console.debug("cleanupPointerListeners (pointer) error", e);
+    }
     try {
       const tm = handlersRef.current.touchMove;
       const te = handlersRef.current.touchEnd;
@@ -88,10 +90,14 @@ function CardInner(
       if (te) window.removeEventListener("touchend", te);
       handlersRef.current.touchMove = null;
       handlersRef.current.touchEnd = null;
-    } catch (e) {}
+    } catch (e) {
+      console.debug("cleanupPointerListeners (touch) error", e);
+    }
     try {
       cardRef.current?.releasePointerCapture?.(pointerIdRef.current);
-    } catch (e) {}
+    } catch (e) {
+      console.debug("cleanupPointerListeners (releasePointerCapture) error", e);
+    }
   }
 
   const onPointerMoveWindow = useCallback((e) => {
@@ -137,7 +143,9 @@ function CardInner(
   function onPointerDown(e) {
     try {
       cardRef.current?.setPointerCapture?.(e.pointerId);
-    } catch (err) {}
+    } catch (err) {
+      console.debug("setPointerCapture failed", err);
+    }
     pointerIdRef.current = e.pointerId;
     startRef.current = { x: e.clientX, y: e.clientY };
     setIsDragging(true);
@@ -177,10 +185,14 @@ function CardInner(
     try {
       window.removeEventListener("pointermove", onPointerMoveWindow);
       window.removeEventListener("pointerup", onPointerUpWindow);
-    } catch (e) {}
+    } catch (e) {
+      console.debug("cleanupPointerListeners (remove) error", e);
+    }
     try {
       cardRef.current?.releasePointerCapture?.(pointerIdRef.current);
-    } catch (e) {}
+    } catch (e) {
+      console.debug("cleanupPointerListeners (release) error", e);
+    }
   }
 
   useImperativeHandle(ref, () => ({
@@ -225,7 +237,9 @@ function CardInner(
       if (te) window.removeEventListener("touchend", te);
       handlersRef.current.touchMove = null;
       handlersRef.current.touchEnd = null;
-    } catch (e) {}
+    } catch (e) {
+      console.debug("onTouchEnd cleanup error", e);
+    }
 
     const dx = pos.x;
     const dy = pos.y;

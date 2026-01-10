@@ -8,10 +8,18 @@ import {
   Settings,
   Utensils,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Page() {
   const router = useRouter();
+  const [locationEnabled, setLocationEnabled] = useState(true);
+
+  function toggleLocationServices() {
+    setLocationEnabled((v) => !v);
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white px-6 py-4 shadow-sm">
@@ -30,7 +38,8 @@ export default function Page() {
           <div className="px-5 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-900">Preferences</h2>
           </div>
-          <button className="w-full px-5 py-4 flex items-center justify-between border-b border-gray-100 active:bg-gray-50">
+          <Link href="/onboarding/step-2">
+          <button className="w-full px-5 py-4 flex items-center justify-between border-b border-gray-100 active:bg-gray-50 cursor-pointer">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 flex items-center justify-center">
                 <Utensils className="h-6 flex items-center justify-center text-gray-600"></Utensils>
@@ -39,6 +48,7 @@ export default function Page() {
             </div>
             <i className="ri-arrow-right-s-line text-xl text-gray-400"></i>
           </button>
+          </Link>
           <div className="px-5 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 flex items-center justify-center">
@@ -46,8 +56,24 @@ export default function Page() {
               </div>
               <span className="text-sm text-gray-900">Location Services</span>
             </div>
-            <button className="relative w-12 h-7 rounded-full transition-colors bg-orange-500">
-              <div className="absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm transition-transform translate-x-6"></div>
+            <button
+              type="button"
+              onClick={toggleLocationServices}
+              className={
+                "relative w-12 h-7 rounded-full transition-colors focus:outline-none cursor-pointer " +
+                (locationEnabled ? "bg-orange-500" : "bg-gray-300")
+              }
+              aria-pressed={locationEnabled}
+              aria-label={
+                locationEnabled ? "Location services on" : "Location services off"
+              }
+            >
+              <div
+                className={
+                  "absolute top-1 w-5 h-5 bg-white rounded-full shadow-sm transition-transform " +
+                  (locationEnabled ? "translate-x-6" : "translate-x-1")
+                }
+              ></div>
             </button>
           </div>
         </div>
